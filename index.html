@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Cancer Classification</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Breast Cancer Detection</h1>
+    </header>
+
+    <main>
+        <form id="form">
+            <h2>Enter the measurements and get an instant prediction</h2>
+
+            <div id="fields" class="grid"></div>
+
+            <div class="actions">
+                <button type="submit">Predict</button>
+                <button type="button" class="secondary" id="clear">Clear</button>
+            </div>
+
+            <div id="result" class="result hidden" role="status"></div>
+            <p class="disclaimer">For educational purposes only. This is not a medical diagnosis.</p>
+        </form>
+    </main>
+
+    <script>
+        const API_URL = "http://127.0.0.1:5000/predict";
+
+        // Même ordre que load_breast_cancer().feature_names
+        const FEATURES = [
+            "mean radius", "mean texture", "mean perimeter", "mean area", "mean smoothness",
+            "mean compactness", "mean concavity", "mean concave points", "mean symmetry", "mean fractal dimension",
+            "radius error", "texture error", "perimeter error", "area error", "smoothness error",
+            "compactness error", "concavity error", "concave points error", "symmetry error", "fractal dimension error",
+            "worst radius", "worst texture", "worst perimeter", "worst area", "worst smoothness",
+            "worst compactness", "worst concavity", "worst concave points", "worst symmetry", "worst fractal dimension"
+        ];
+
+        const fields = document.getElementById("fields");
+        const result = document.getElementById("result");
+
+        FEATURES.forEach((name, i) => {
+            const input = document.createElement("input");
+            input.type = "number";
+            input.step = "any";
+            input.id = "f" + i;
+            input.placeholder = name;
+            input.title = name;
+            input.required = true;
+            input.setAttribute("aria-label", name);
+            fields.appendChild(input);
+        });
+
+        document.getElementById("form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const features = FEATURES.map((_, i) => parseFloat(document.getElementById("f" + i).value));
+
+            result.className = "result";
+            result.textContent = "Analyzing...";
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ features })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Server error");
+
+                const malignant = data.label === "malignant";
+                result.className = "result " + (malignant ? "bad" : "good");
+                result.innerHTML = `<strong>${malignant ? "Malignant" : "Benign"}</strong>` +
+                    (data.confidence !== null ? `<span>Confidence: ${(data.confidence * 100).toFixed(1)}%</span>` : "");
+            } catch (err) {
+                result.className = "result error";
+                result.textContent = "Error: " + err.message + " (is the API running?)";
+            }
+        });
+
+        document.getElementById("clear").addEventListener("click", () => {
+            document.getElementById("form").reset();
+            result.className = "result hidden";
+        });
+    </script>
+</body>
+</html>
