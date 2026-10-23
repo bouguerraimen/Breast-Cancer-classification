@@ -38,4 +38,9 @@ Breast-Cancer-classification/
 ├── model.pkl      # Trained model
 └── README.md
 ```
+## Model performance
+
+| Metric | Score |
+|--------|-------|
+| Accuracy | 94% |
 
