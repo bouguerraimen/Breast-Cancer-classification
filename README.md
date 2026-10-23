@@ -1,7 +1,7 @@
 # Breast Cancer Classification
 
 A simple web app that predicts whether a breast tumor is **benign** or **malignant** from 30 cell nucleus measurements. The interface is built with HTML, CSS and JavaScript, and talks to a machine learning model served by a Flask API.
-![App screenshot]( interface screenshot.png)
+![App screenshot](interface-screenshot.png)
 
 > **Disclaimer:** this project is for educational purposes only. It is not a medical diagnosis tool.
 
